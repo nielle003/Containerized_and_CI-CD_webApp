@@ -28,13 +28,26 @@ pipeline {
                     
                     echo "Starting container..."
                     docker run -d -p 8001:8000 --name test-app-${BUILD_NUMBER} simple-web-app:${BUILD_NUMBER}
-                    sleep 5
                     
-                    echo "Testing health endpoint..."
-                    curl -f http://localhost:8001/health
+                    echo "Waiting for container to start..."
+                    sleep 10
+                    
+                    echo "Container status:"
+                    docker ps | grep test-app-${BUILD_NUMBER}
                     
                     echo "Container logs:"
                     docker logs test-app-${BUILD_NUMBER}
+                    
+                    echo "Testing health endpoint..."
+                    for i in 1 2 3 4 5; do
+                        if curl -f http://localhost:8001/health; then
+                            echo "Health check passed!"
+                            break
+                        else
+                            echo "Attempt $i failed, retrying..."
+                            sleep 2
+                        fi
+                    done
                     
                     echo "Stopping container..."
                     docker stop test-app-${BUILD_NUMBER}
