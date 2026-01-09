@@ -8,18 +8,14 @@ pipeline {
             }
         }
         
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                    docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11-slim pip install --no-cache-dir -r requirements.txt
-                '''
-            }
-        }
-        
         stage('Run Tests') {
             steps {
                 sh '''
-                    docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11-slim sh -c "pip install -r requirements.txt && pytest"
+                    docker run --rm \
+                      -v ${WORKSPACE}:/workspace \
+                      -w /workspace \
+                      python:3.11-slim \
+                      sh -c "pip install --no-cache-dir -r requirements.txt && pytest"
                 '''
             }
         }
@@ -27,6 +23,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t simple-web-app:${BUILD_NUMBER} .'
+                sh 'docker tag simple-web-app:${BUILD_NUMBER} simple-web-app:latest'
             }
         }
         
@@ -35,7 +32,7 @@ pipeline {
                 sh '''
                     docker run -d -p 8001:8000 --name test-app-${BUILD_NUMBER} simple-web-app:${BUILD_NUMBER}
                     sleep 5
-                    docker exec test-app-${BUILD_NUMBER} curl -f http://localhost:8000/health || exit 1
+                    curl -f http://172.17.0.1:8001/health || (docker logs test-app-${BUILD_NUMBER} && exit 1)
                     docker stop test-app-${BUILD_NUMBER}
                     docker rm test-app-${BUILD_NUMBER}
                 '''
@@ -45,10 +42,14 @@ pipeline {
     
     post {
         success {
-            echo '✅ Pipeline succeeded! Image ready for deployment.'
+            echo '✅ Pipeline succeeded! Docker image simple-web-app:${BUILD_NUMBER} is ready.'
         }
         failure {
             echo '❌ Pipeline failed. Check logs above.'
+            sh 'docker ps -a | grep test-app || true'
+        }
+        always {
+            sh 'docker system prune -f || true'
         }
     }
 }
