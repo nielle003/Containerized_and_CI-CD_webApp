@@ -1,55 +1,160 @@
-# Simple Web App - DevOps Portfolio Project
 
-A production-ready FastAPI microservice demonstrating DevOps best practices including CI/CD, containerization, and automated testing.
 
-## 🚀 Quick Start
+---
 
-### Local Development
-```bash
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+# Simple Web App – DevOps Portfolio Project
 
-Visit http://localhost:8000/docs for interactive API documentation.
+A **production-ready FastAPI microservice** built to demonstrate core **DevOps practices** such as containerization, CI/CD pipelines, and automated testing.
 
-Run Tests
-pytest
+This project is intentionally simple in functionality but strong in **engineering discipline**, making it ideal for **DevOps / Cloud / Platform Engineer portfolios**.
 
-Docker
-docker build -t simple-web-app .
-docker run -p 8000:8000 simple-web-app
+---
 
-📋 API Endpoints
-Endpoint	Method	            Description
-/	        GET	                Welcome message
-/health	    GET	                Health check (for load balancers)
+## ✨ Features
 
-Project Structure
+* ⚡ FastAPI-based microservice
+* 🐳 Dockerized application
+* 🧪 Automated tests with Pytest
+* 🔁 CI pipeline using GitHub Actions
+* 🧱 Jenkins pipeline for CI/CD practice
+* 🩺 Health check endpoint (load balancer ready)
+* 📄 Clean, scalable project structure
+
+---
+
+## 📁 Project Structure
+
+```
 simple-web-app/
 ├── app/
 │   ├── __init__.py
-│   └── main.py           # FastAPI application
+│   └── main.py            # FastAPI application
 ├── tests/
 │   ├── __init__.py
-│   └── test_health.py    # Health endpoint test
+│   └── test_health.py     # Health endpoint tests
 ├── .github/
 │   └── workflows/
-│       └── ci.yaml       # GitHub Actions pipeline
-├── requirements.txt      # Python dependencies
-├── Dockerfile           # Container configuration
-├── .dockerignore        # Docker build exclusions
-├── Jenkinsfile          # Jenkins pipeline
+│       └── ci.yaml        # GitHub Actions CI pipeline
+├── requirements.txt       # Python dependencies
+├── Dockerfile             # Container configuration
+├── .dockerignore          # Docker build exclusions
+├── Jenkinsfile            # Jenkins CI/CD pipeline
 └── README.md
 ```
 
+---
 
-🔄 CI/CD Pipelines
-GitHub Actions
-    Triggers on push to main/master
-    Runs tests → Builds Docker → Validates container
-    View status in GitHub Actions tab
+## 🚀 Getting Started
 
-Jenkins
-    Declarative pipeline with 4 stages
-    Creates versioned Docker images
-    Automated cleanup after builds
+### 🔧 Local Development
+
+1. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Start the application:
+
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+3. Open API documentation:
+
+   ```
+   http://localhost:8000/docs
+   ```
+
+---
+
+## 🧪 Running Tests
+
+```bash
+pytest
+```
+
+All tests are executed automatically in the CI pipeline.
+
+---
+
+## 🐳 Docker
+
+### Build the Image
+
+```bash
+docker build -t simple-web-app .
+```
+
+### Run the Container
+
+```bash
+docker run -p 8000:8000 simple-web-app
+```
+
+Visit:
+
+```
+http://localhost:8000
+```
+
+---
+
+## 📡 API Endpoints
+
+| Endpoint  | Method | Description                        |
+| --------- | ------ | ---------------------------------- |
+| `/`       | GET    | Welcome message                    |
+| `/health` | GET    | Health check (for monitoring / LB) |
+
+---
+
+## 🔁 CI/CD
+
+### GitHub Actions
+
+* Runs on every push and pull request
+* Installs dependencies
+* Executes tests automatically
+
+### Jenkins
+
+* Declarative pipeline via `Jenkinsfile`
+* Designed for local or self-hosted Jenkins setups
+* Demonstrates real-world CI/CD workflow
+
+---
+
+## 🎯 Why This Project?
+
+This project showcases:
+
+* Real DevOps workflows (not just theory)
+* CI/CD pipeline implementation
+* Container-first development
+* Clean, testable application design
+
+It serves as a **foundation** for future improvements such as:
+
+* Kubernetes deployment
+* Terraform infrastructure
+* Monitoring with Prometheus/Grafana
+* Cloud deployment (GCP / AWS / Azure)
+
+---
+
+## 📌 Tech Stack
+
+* **Backend:** FastAPI (Python)
+* **Testing:** Pytest
+* **CI/CD:** GitHub Actions, Jenkins
+* **Containerization:** Docker
+
+---
+
+## 📄 License
+
+This project is open-source and available for educational and portfolio use.
+
+---
 
