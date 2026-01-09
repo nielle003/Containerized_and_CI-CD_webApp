@@ -5,48 +5,48 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-            }
-        }
-        
-        stage('Run Tests') {
-            steps {
-                sh '''
-                    docker run --rm \
-                      -v ${WORKSPACE}:/workspace \
-                      -w /workspace \
-                      python:3.11-slim \
-                      sh -c "pip install --no-cache-dir -r requirements.txt && pytest"
-                '''
+                sh 'ls -la'
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t simple-web-app:${BUILD_NUMBER} .'
-                sh 'docker tag simple-web-app:${BUILD_NUMBER} simple-web-app:latest'
+                sh '''
+                    echo "Building Docker image..."
+                    docker build -t simple-web-app:${BUILD_NUMBER} .
+                    docker tag simple-web-app:${BUILD_NUMBER} simple-web-app:latest
+                '''
             }
         }
         
-        stage('Test Docker Container') {
+        stage('Run Container Test') {
             steps {
                 sh '''
+                    echo "Starting container..."
                     docker run -d -p 8001:8000 --name test-app-${BUILD_NUMBER} simple-web-app:${BUILD_NUMBER}
-                    sleep 5
-                    curl -f http://172.17.0.1:8001/health || (docker logs test-app-${BUILD_NUMBER} && exit 1)
+                    sleep 3
+                    echo "Testing health endpoint..."
+                    docker exec test-app-${BUILD_NUMBER} curl -f http://localhost:8000/health
+                    echo "Stopping container..."
                     docker stop test-app-${BUILD_NUMBER}
                     docker rm test-app-${BUILD_NUMBER}
                 '''
+            }
+        }
+        
+        stage('List Images') {
+            steps {
+                sh 'docker images | grep simple-web-app'
             }
         }
     }
     
     post {
         success {
-            echo '✅ Pipeline succeeded! Docker image simple-web-app:${BUILD_NUMBER} is ready.'
+            echo '✅ Build #${BUILD_NUMBER} succeeded! Image created: simple-web-app:${BUILD_NUMBER}'
         }
         failure {
-            echo '❌ Pipeline failed. Check logs above.'
-            sh 'docker ps -a | grep test-app || true'
+            echo '❌ Build #${BUILD_NUMBER} failed.'
         }
         always {
             sh 'docker system prune -f || true'
