@@ -22,13 +22,20 @@ pipeline {
         stage('Run Container Test') {
             steps {
                 sh '''
+                    echo "Cleaning up any existing test containers..."
+                    docker rm -f test-app-${BUILD_NUMBER} || true
+                    docker ps | grep test-app | awk '{print $1}' | xargs -r docker rm -f || true
+                    
                     echo "Starting container..."
                     docker run -d -p 8001:8000 --name test-app-${BUILD_NUMBER} simple-web-app:${BUILD_NUMBER}
                     sleep 5
+                    
                     echo "Testing health endpoint..."
                     curl -f http://localhost:8001/health
+                    
                     echo "Container logs:"
                     docker logs test-app-${BUILD_NUMBER}
+                    
                     echo "Stopping container..."
                     docker stop test-app-${BUILD_NUMBER}
                     docker rm test-app-${BUILD_NUMBER}
@@ -51,6 +58,7 @@ pipeline {
             echo '❌ Build #${BUILD_NUMBER} failed.'
         }
         always {
+            sh 'docker rm -f $(docker ps -aq --filter name=test-app) || true'
             sh 'docker system prune -f || true'
         }
     }
