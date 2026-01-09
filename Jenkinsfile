@@ -24,9 +24,11 @@ pipeline {
                 sh '''
                     echo "Starting container..."
                     docker run -d -p 8001:8000 --name test-app-${BUILD_NUMBER} simple-web-app:${BUILD_NUMBER}
-                    sleep 3
+                    sleep 5
                     echo "Testing health endpoint..."
-                    docker exec test-app-${BUILD_NUMBER} curl -f http://localhost:8000/health
+                    curl -f http://localhost:8001/health
+                    echo "Container logs:"
+                    docker logs test-app-${BUILD_NUMBER}
                     echo "Stopping container..."
                     docker stop test-app-${BUILD_NUMBER}
                     docker rm test-app-${BUILD_NUMBER}
